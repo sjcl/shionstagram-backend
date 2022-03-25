@@ -6,11 +6,17 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	"github.com/sjcl/shionstagram-backend/web/model"
+	"github.com/sjcl/shionstagram-backend/web/handler"
 )
 
 func main() {
 	db := sqlx.MustConnect("mysql", "shion:password@tcp(db:3306)/shionstagram_db?parseTime=true")
 	defer db.Close()
+
+	m := model.NewModel(db)
+	h := handler.NewHandler(m)
 	
 	e := echo.New()
 
