@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `shionstagram_db`.`posts` (
     `message`    VARCHAR(2048)    NOT NULL,
     `img_src`    VARCHAR(255),
     `avatar`     TINYINT UNSIGNED NOT NULL,
-    `pending`    BOOLEAN          NOT NULL,
+    `is_pending` BOOLEAN          NOT NULL,
     `created_at` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY ( `id` )
