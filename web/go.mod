@@ -1,4 +1,4 @@
-module github.com/sjcl/shionstagram-backend
+module github.com/sjcl/shionstagram-backend/web
 
 go 1.18
 
