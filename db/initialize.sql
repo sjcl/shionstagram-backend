@@ -5,14 +5,15 @@ CREATE DATABASE IF NOT EXISTS `shionstagram_db`;
 
 CREATE TABLE IF NOT EXISTS `shionstagram_db`.`posts` (
     `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `uuid`       VARBINARY(16)    NOT NULL,
-    `name`       VARCHAR(255)     NOT NULL,
-    `location`   VARCHAR(255)     NOT NULL,
-    `message`    VARCHAR(2048)    NOT NULL,
-    `img_src`    VARCHAR(255),
-    `avatar`     TINYINT UNSIGNED NOT NULL,
-    `is_pending` BOOLEAN          NOT NULL,
-    `created_at` TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `uuid`         VARBINARY(16)    NOT NULL,
+    `twitter_name` VARCHAR(15)      NOT NULL,
+    `name`         VARCHAR(100)     NOT NULL,
+    `location`     VARCHAR(100),
+    `message`      VARCHAR(500)     NOT NULL,
+    `img_src`      VARCHAR(255),
+    `avatar`       TINYINT UNSIGNED NOT NULL,
+    `is_pending`   BOOLEAN          NOT NULL DEFAULT 0,
+    `created_at`   TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY ( `id` )
 )
