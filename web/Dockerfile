@@ -4,6 +4,8 @@ COPY . /root/build
 
 RUN cd /root/build && CGO_ENABLED=0 go build
 
+RUN ls /root/build
+
 FROM alpine:3.15
 
 RUN apk add --no-cache openssl
@@ -14,8 +16,8 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
 COPY --from=build \
-        /root/build/shionstagram-backend \
+        /root/build/web \
         /usr/bin/shionstagram-backend
 
-ENTRYPOINT ["dockerize", "-wait", "tcp://db:3306"]
+ENTRYPOINT ["dockerize", "-wait", "tcp://db:3306", "-timeout", "60s"]
 CMD ["/usr/bin/shionstagram-backend"]
