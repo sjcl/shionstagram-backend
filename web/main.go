@@ -24,5 +24,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
+	e.POST("/message", h.PostMessage)
+
 	e.Logger.Fatal(e.Start(":8083"))
 }
