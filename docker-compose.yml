@@ -9,6 +9,7 @@ services:
     restart: always
     networks:
       - backend
+      - proxy
   db:
     build: ./db
     volumes:
@@ -24,3 +25,5 @@ volumes:
 
 networks:
   backend:
+  proxy:
+    name: nginx_reverse_proxy
