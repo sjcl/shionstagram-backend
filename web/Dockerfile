@@ -4,8 +4,6 @@ COPY . /root/build
 
 RUN cd /root/build && CGO_ENABLED=0 go build
 
-RUN ls /root/build
-
 FROM alpine:3.15
 
 RUN apk add --no-cache openssl
