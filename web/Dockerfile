@@ -1,8 +1,16 @@
 FROM golang:1.18 AS build
 
-COPY . /root/build
+ENV CGO_ENABLED=0
+WORKDIR /root/build
 
-RUN cd /root/build && CGO_ENABLED=0 go build
+COPY go.mod .
+COPY go.sum .
+
+RUN set -x && go mod download
+
+COPY . .
+
+RUN set -x && go build
 
 FROM alpine:3.15
 
