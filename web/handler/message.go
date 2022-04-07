@@ -232,3 +232,12 @@ func (h *handler) AcceptMessage(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, res)
 }
+
+func (h *handler) GetMessages(c echo.Context) error {
+	messages, err := h.Model.GetAcceptedMessages()
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, messages)
+}

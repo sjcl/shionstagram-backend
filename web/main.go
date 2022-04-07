@@ -30,5 +30,7 @@ func main() {
 	e.GET("/accept/:id", h.AcceptMessage)
 	e.POST("/accept/:id", h.AcceptMessage)
 
+	e.GET("/messages", h.GetMessages)
+
 	e.Logger.Fatal(e.Start(":8083"))
 }
