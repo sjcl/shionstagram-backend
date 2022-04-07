@@ -13,7 +13,7 @@ type (
 		Location    string    `json:"location" db:"location"`
 		Message     string    `json:"message" db:"message"`
 		Image       string    `json:"image,omitempty" db:"image"`
-		Avatar      uint      `json:"pfp" db:"avatar"`
+		Avatar      int       `json:"pfp" db:"avatar"`
 		Pending     bool      `json:"pending,omitempty" db:"is_pending"`
 		CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
 	}
