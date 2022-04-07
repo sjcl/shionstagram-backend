@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"bytes"
 	"strconv"
+	"fmt"
 
 	"github.com/sjcl/shionstagram-backend/web/model"
 	"github.com/labstack/echo/v4"
@@ -94,6 +95,11 @@ func (h *handler) PostMessage(c echo.Context) error {
 				Value: msg.Message,
 				Inline: false,
 			},
+			{
+				Name: "Action",
+				Value: fmt.Sprintf("[Accept](%s/accept/%d?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
+				Inline: false,
+			},
 		}
 	} else {
 		whFields = []Field {
@@ -115,6 +121,11 @@ func (h *handler) PostMessage(c echo.Context) error {
 			{
 				Name: "Message",
 				Value: msg.Message,
+				Inline: false,
+			},
+			{
+				Name: "Action",
+				Value: fmt.Sprintf("[Accept](%s/accept/%d?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
 				Inline: false,
 			},
 		}
