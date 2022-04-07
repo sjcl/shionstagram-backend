@@ -14,7 +14,7 @@ type (
 		Message     string    `json:"message" db:"message"`
 		Image       string    `json:"image,omitempty" db:"image"`
 		Avatar      int       `json:"pfp" db:"avatar"`
-		Pending     bool      `json:"pending,omitempty" db:"is_pending"`
+		Pending     bool      `json:"-" db:"is_pending"`
 		CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
 	}
 )
@@ -49,6 +49,15 @@ func (m *model) AcceptMessage(id uint64) (err error) {
 	if err != nil {
 		return
 	}
-	
+
 	return
+}
+
+func (m *model) GetAcceptedMessages() ([]*Message, error) {
+	messages := []*Message{}
+	if err := m.db.Select(&messages, `SELECT * FROM messages WHERE is_pending = 0`); err != nil {
+		return nil, err
+	}
+
+	return messages, nil
 }
