@@ -216,12 +216,18 @@ func (h *handler) AcceptMessage(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
+	if !msg.Pending {
+		return c.JSON(http.StatusBadRequest, &ResMessage{
+			Message: "This message is already accepted.",
+		})
+	}
+
 	if err := h.Model.AcceptMessage(id); err != nil {
 		return err
 	}
 
 	res := &ResMessage{
-		Message: "Message accepted.",
+		Message: "Message accepted. You can close this tab now.",
 	}
 
 	return c.JSON(http.StatusOK, res)
