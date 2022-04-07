@@ -43,3 +43,12 @@ func (m *model) GetMessage(id uint64) (*Message, error) {
 	
 	return &msg, nil
 }
+
+func (m *model) AcceptMessage(id uint64) (err error) {
+	_, err = m.db.Exec(`UPDATE messages SET is_pending = 0 WHERE id = ?`, id)
+	if err != nil {
+		return
+	}
+	
+	return
+}

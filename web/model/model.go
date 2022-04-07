@@ -12,6 +12,7 @@ type (
 	Database interface {
 		AddMessage(msg *Message) (int64, error)
 		GetMessage(id uint64) (*Message, error)
+		AcceptMessage(id uint64) (err error)
 	}
 )
 
