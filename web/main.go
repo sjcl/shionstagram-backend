@@ -31,6 +31,7 @@ func main() {
 	e.Use(middleware.CORS())
 
 	e.POST("/message", h.PostMessage)
+	e.POST("/image", h.PostImage)
 
 	e.Logger.Fatal(e.Start(":8083"))
 }
