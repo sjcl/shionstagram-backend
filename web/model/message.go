@@ -19,13 +19,18 @@ type (
 	}
 )
 
-func (m *model) AddMessage(msg *Message) (err error) {
-	_, err = m.db.NamedExec(`INSERT INTO
+func (m *model) AddMessage(msg *Message) (int64, error) {
+	res, err := m.db.NamedExec(`INSERT INTO
 						messages (uuid, twitter_name, name, location, message, avatar, image)
 						VALUES (:uuid, :twitter_name, :name, :location, :message, :avatar, :image)`, msg)
 	if err != nil {
-		return
+		return -1, err
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, err
 	}
 	
-	return
+	return id, nil
 }

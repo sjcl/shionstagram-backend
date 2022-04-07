@@ -55,7 +55,8 @@ func (h *handler) PostMessage(c echo.Context) error {
 	uuidObj, _ := uuid.NewRandom()
 	msg.UUID = uuidObj.String()
 
-	if err := h.Model.AddMessage(msg); err != nil {
+	id, err := h.Model.AddMessage(msg)
+	 if err != nil {
 		return err
 	}
 
@@ -139,7 +140,11 @@ func (h *handler) PostMessage(c echo.Context) error {
 		return err
 	}
 
-	return c.NoContent(http.StatusCreated)
+	res := &ResPostImage{
+		ID: strconv.FormatInt(id, 10),
+	}
+
+	return c.JSON(http.StatusCreated, res)
 }
 
 func (h *handler) PostImage(c echo.Context) error {

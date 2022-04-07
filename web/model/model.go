@@ -10,7 +10,7 @@ type (
 	}
 
 	Database interface {
-		AddMessage(msg *Message) (err error)
+		AddMessage(msg *Message) (int64, error)
 	}
 )
 
