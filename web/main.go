@@ -27,5 +27,7 @@ func main() {
 	e.POST("/message", h.PostMessage)
 	e.POST("/image", h.PostImage)
 
+	e.POST("/accept/:id", h.AcceptMessage)
+
 	e.Logger.Fatal(e.Start(":8083"))
 }

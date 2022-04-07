@@ -19,6 +19,10 @@ type (
 	ResID struct {
 		ID string `json:"id"`
 	}
+
+	ResMessage struct {
+		Message string `json:"message"`
+	}
 )
 
 type (
@@ -179,4 +183,35 @@ func (h *handler) PostImage(c echo.Context) error {
 		ID: uuid + ext,
 	}
 	return c.JSON(http.StatusCreated, res)
+}
+
+func (h *handler) AcceptMessage(c echo.Context) error {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	uuid := c.QueryParam("id")
+	if uuid == "" {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	msg, err := h.Model.GetMessage(id)
+	if err != nil {
+		return err
+	}
+
+	if msg.UUID != uuid {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	if err := h.Model.AcceptMessage(id); err != nil {
+		return err
+	}
+
+	res := &ResMessage{
+		Message: "Message accepted.",
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
