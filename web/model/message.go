@@ -34,3 +34,12 @@ func (m *model) AddMessage(msg *Message) (int64, error) {
 	
 	return id, nil
 }
+
+func (m *model) GetMessage(id uint64) (*Message, error) {
+	var msg Message
+	if err := m.db.Get(&msg, `SELECT * FROM messages WHERE id = ?`, id); err != nil {
+		return nil, err
+	}
+	
+	return &msg, nil
+}
