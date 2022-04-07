@@ -6,6 +6,8 @@ services:
       - '8083'
     depends_on:
       - db
+    volumes:
+      - /home/shared/nginx/www/html/api2.teamfruit.net/images:/images
     restart: always
     networks:
       - backend
