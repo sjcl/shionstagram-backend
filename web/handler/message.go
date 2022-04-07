@@ -6,6 +6,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"encoding/json"
+	"bytes"
+	"strconv"
 
 	"github.com/sjcl/shionstagram-backend/web/model"
 	"github.com/labstack/echo/v4"
@@ -15,6 +18,29 @@ import (
 type (
 	ResPostImage struct {
 		ID string `json:"id"`
+	}
+
+	DiscordWebhook struct {
+		Embeds    []Embed    `json:"embeds"`
+		Username  string     `json:"username"`
+		AvatarUrl string     `json:"avatar_url"`
+	}
+
+	Field struct {
+		Name   string `json:"name"`
+		Value  string `json:"value"`
+		Inline bool   `json:"inline,omitempty"`
+	}
+
+	Image struct {
+		URL string `json:"url,omitempty"`
+	}
+	
+	Embed struct {
+		Title  string      `json:"title"`
+		Color  string      `json:"color"`
+		Fields []Field     `json:"fields"`
+		Image  Image       `json:"image"`
 	}
 )
 
@@ -32,7 +58,87 @@ func (h *handler) PostMessage(c echo.Context) error {
 	if err := h.Model.AddMessage(msg); err != nil {
 		return err
 	}
+
+	var whFields []Field 
+	if msg.Location != "" {
+		whFields = []Field {
+			{
+				Name: "Name",
+				Value: msg.Name,
+				Inline: true,
+			},
+			{
+				Name: "Twitter Name",
+				Value: msg.TwitterName,
+				Inline: true,
+			},
+			{
+				Name: "Location",
+				Value: msg.Location,
+				Inline: true,
+			},
+			{
+				Name: "Avatar",
+				Value: strconv.Itoa(msg.Avatar),
+				Inline: true,
+			},
+			{
+				Name: "Message",
+				Value: msg.Message,
+				Inline: false,
+			},
+		}
+	} else {
+		whFields = []Field {
+			{
+				Name: "Name",
+				Value: msg.Name,
+				Inline: true,
+			},
+			{
+				Name: "Twitter Name",
+				Value: msg.TwitterName,
+				Inline: true,
+			},
+			{
+				Name: "Avatar",
+				Value: strconv.Itoa(msg.Avatar),
+				Inline: true,
+			},
+			{
+				Name: "Message",
+				Value: msg.Message,
+				Inline: false,
+			},
+		}
+	}
 	
+
+	wh := &DiscordWebhook{
+		Username: "Shionstagram",
+		AvatarUrl: os.Getenv("WEBHOOK_AVATAR_URL"),
+		Embeds: []Embed {
+			{
+				Title: "New message posted!",
+				Color: "10813695",
+				Image: Image{
+					URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
+				},
+				Fields: whFields,
+			},
+		},
+	}
+
+	whPayload, err := json.Marshal(wh)
+	if err != nil {
+		return err
+	}
+
+	_, err = http.Post(os.Getenv("WEBHOOK_URL"), "application/json", bytes.NewBuffer(whPayload))
+	if err != nil {
+		return err
+	}
+
 	return c.NoContent(http.StatusCreated)
 }
 

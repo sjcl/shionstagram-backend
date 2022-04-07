@@ -6,6 +6,10 @@ services:
       - '8083'
     depends_on:
       - db
+    environment:
+      API_BASE_URL: $API_BASE_URL
+      WEBHOOK_URL: $WEBHOOK_URL
+      WEBHOOK_AVATAR_URL: $WEBHOOK_AVATAR_URL
     volumes:
       - /home/shared/nginx/www/html/api2.teamfruit.net/images:/images
     restart: always
