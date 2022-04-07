@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 
@@ -14,10 +12,6 @@ import (
 )
 
 func main() {
-	if err := os.MkdirAll("/tmp", os.ModePerm); err != nil {
-		panic(err)
-	}
-
 	db := sqlx.MustConnect("mysql", "shion:password@tcp(db:3306)/shionstagram_db?parseTime=true")
 	defer db.Close()
 
