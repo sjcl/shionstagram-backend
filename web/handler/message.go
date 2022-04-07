@@ -16,10 +16,12 @@ import (
 )
 
 type (
-	ResPostImage struct {
+	ResID struct {
 		ID string `json:"id"`
 	}
+)
 
+type (
 	DiscordWebhook struct {
 		Embeds    []Embed    `json:"embeds"`
 		Username  string     `json:"username"`
@@ -140,7 +142,7 @@ func (h *handler) PostMessage(c echo.Context) error {
 		return err
 	}
 
-	res := &ResPostImage{
+	res := &ResID{
 		ID: strconv.FormatInt(id, 10),
 	}
 
@@ -173,7 +175,7 @@ func (h *handler) PostImage(c echo.Context) error {
 		return err
 	}
 
-	res := &ResPostImage{
+	res := &ResID{
 		ID: uuid + ext,
 	}
 	return c.JSON(http.StatusCreated, res)
