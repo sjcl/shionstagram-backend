@@ -38,7 +38,7 @@ func (m *model) AddMessage(msg *Message) (int64, error) {
 
 func (m *model) GetMessage(id uint64) (*Message, error) {
 	var msg Message
-	if err := m.db.Get(&msg, `SELECT * FROM messages WHERE id = ?`, id); err != nil {
+	if err := m.db.Get(&msg, `SELECT id, uuid, twitter_name, name, location, message, image, avatar, is_pending, created_at FROM messages WHERE id = ?`, id); err != nil {
 		return nil, err
 	}
 	
@@ -56,7 +56,7 @@ func (m *model) AcceptMessage(id uint64) (err error) {
 
 func (m *model) GetAcceptedMessages() ([]*Message, error) {
 	messages := []*Message{}
-	if err := m.db.Select(&messages, `SELECT * FROM messages WHERE is_pending = 0`); err != nil {
+	if err := m.db.Select(&messages, `SELECT id, twitter_name, name, location, message, image, avatar, created_at FROM messages WHERE is_pending = 0`); err != nil {
 		return nil, err
 	}
 
