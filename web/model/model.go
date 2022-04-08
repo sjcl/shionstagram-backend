@@ -10,11 +10,11 @@ type (
 	}
 
 	Database interface {
-		AddMessage(msg *Message) (int64, error)
-		GetMessage(id uint64) (*Message, error)
-		AcceptMessage(id uint64) (err error)
+		AddMessage(msg *Message) (string, error)
+		GetMessage(id string) (*Message, error)
+		AcceptMessage(id string) (err error)
 		GetAcceptedMessages() ([]*Message, error)
-		SetDiscordMessageID(id int64, discordMsgId string) (err error)
+		SetDiscordMessageID(id string, discordMsgId string) (err error)
 	}
 )
 

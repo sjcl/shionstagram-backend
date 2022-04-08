@@ -51,7 +51,7 @@ type (
 	}
 )
 
-func BuildWebhookRequest(id int64, msg *model.Message) *DiscordWebhook {
+func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 	var fields []Field
 
 	fields = append(fields, Field{
@@ -83,10 +83,25 @@ func BuildWebhookRequest(id int64, msg *model.Message) *DiscordWebhook {
 		Value: msg.Message,
 		Inline: false,
 	})
+
+	if msg.Pending {
+		fields = append(fields, Field{
+			Name: "Status",
+			Value: "Pending",
+			Inline: true,
+		})	
+	} else {
+		fields = append(fields, Field{
+			Name: "Status",
+			Value: "Approved",
+			Inline: true,
+		})	
+	}
+
 	fields = append(fields, Field{
 		Name: "Action",
-		Value: fmt.Sprintf("[Accept](%s/accept/%d?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
-		Inline: false,
+		Value: fmt.Sprintf("[Accept](%s/accept/%s?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
+		Inline: true,
 	})
 
 	return &DiscordWebhook{
@@ -116,6 +131,8 @@ func (h *handler) PostMessage(c echo.Context) error {
 	uuidObj, _ := uuid.NewRandom()
 	msg.UUID = uuidObj.String()
 
+	msg.Pending = true
+
 	id, err := h.Model.AddMessage(msg)
 	 if err != nil {
 		return err
@@ -135,7 +152,7 @@ func (h *handler) PostMessage(c echo.Context) error {
 	defer whRes.Body.Close()
 
 	res := &ResID{
-		ID: strconv.FormatInt(id, 10),
+		ID: id,
 	}
 
 	if whRes.StatusCode != http.StatusOK {
@@ -192,10 +209,7 @@ func (h *handler) PostImage(c echo.Context) error {
 }
 
 func (h *handler) AcceptMessage(c echo.Context) error {
-	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
-	if err != nil {
-		return c.NoContent(http.StatusBadRequest)
-	}
+	id := c.Param("id")
 
 	uuid := c.QueryParam("id")
 	if uuid == "" {
@@ -217,9 +231,33 @@ func (h *handler) AcceptMessage(c echo.Context) error {
 		})
 	}
 
+	msg.Pending = false
+
 	if err := h.Model.AcceptMessage(id); err != nil {
 		return err
 	}
+
+	wh := BuildWebhookRequest(id, msg)
+
+	whPayload, err := json.Marshal(wh)
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+	whReq, err := http.NewRequest("PATCH", os.Getenv("WEBHOOK_URL") + "/messages/" + msg.DiscordMessageID, bytes.NewBuffer(whPayload))
+	if err != nil {
+		return err
+	}
+
+	whReq.Header.Add("Content-Type", "application/json")
+
+	whRes, err := client.Do(whReq)
+	if err != nil {
+		return err
+	}
+	defer whRes.Body.Close()
+
 
 	res := &ResMessage{
 		Message: "Message accepted. You can close this tab now.",
