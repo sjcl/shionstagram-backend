@@ -152,13 +152,32 @@ func (h *handler) PostMessage(c echo.Context) error {
 		return err
 	}
 
-	_, err = http.Post(os.Getenv("WEBHOOK_URL"), "application/json", bytes.NewBuffer(whPayload))
+	whRes, err := http.Post(os.Getenv("WEBHOOK_URL") + "?wait=true", "application/json", bytes.NewBuffer(whPayload))
 	if err != nil {
 		return err
 	}
+	defer whRes.Body.Close()
 
 	res := &ResID{
 		ID: strconv.FormatInt(id, 10),
+	}
+
+	if whRes.StatusCode != http.StatusOK {
+		fmt.Println("Failed to post webhook message: %d %s", id, msg.UUID)
+		return c.JSON(http.StatusCreated, res)
+	}
+
+	var whResContent ResID
+	err = json.NewDecoder(whRes.Body).Decode(&whResContent)
+	if err != nil {
+		fmt.Println("Failed to read webhook message response: %d %s", id, msg.UUID)
+		return c.JSON(http.StatusCreated, res)
+	}
+
+	err = h.Model.SetDiscordMessageID(id, whResContent.ID)
+	if err != nil {
+		fmt.Println("Failed to store webhook message id: %d %s", id, msg.UUID)
+		return c.JSON(http.StatusCreated, res)
 	}
 
 	return c.JSON(http.StatusCreated, res)
