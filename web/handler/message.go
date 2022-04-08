@@ -51,6 +51,60 @@ type (
 	}
 )
 
+func BuildWebhookRequest(id int64, msg *model.Message) *DiscordWebhook {
+	var fields []Field
+
+	fields = append(fields, Field{
+		Name: "Name",
+		Value: msg.Name,
+		Inline: true,
+	})
+	fields = append(fields, Field{
+		Name: "Twitter Name",
+		Value: msg.TwitterName,
+		Inline: true,
+	})
+
+	if msg.Location != "" {
+		fields = append(fields, Field{
+			Name: "Location",
+			Value: msg.Location,
+			Inline: true,
+		})
+	}
+
+	fields = append(fields, Field{
+		Name: "Avatar",
+		Value: strconv.Itoa(msg.Avatar),
+		Inline: true,
+	})
+	fields = append(fields, Field{
+		Name: "Message",
+		Value: msg.Message,
+		Inline: false,
+	})
+	fields = append(fields, Field{
+		Name: "Action",
+		Value: fmt.Sprintf("[Accept](%s/accept/%d?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
+		Inline: false,
+	})
+
+	return &DiscordWebhook{
+		Username: "Shionstagram",
+		AvatarUrl: os.Getenv("WEBHOOK_AVATAR_URL"),
+		Embeds: []Embed {
+			{
+				Title: "New message posted!",
+				Color: "10813695",
+				Image: Image{
+					URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
+				},
+				Fields: fields,
+			},
+		},
+	}
+}
+
 func (h *handler) PostMessage(c echo.Context) error {
 	msg := new(model.Message)
 	if err := c.Bind(msg); err != nil {
@@ -66,86 +120,8 @@ func (h *handler) PostMessage(c echo.Context) error {
 	 if err != nil {
 		return err
 	}
-
-	var whFields []Field 
-	if msg.Location != "" {
-		whFields = []Field {
-			{
-				Name: "Name",
-				Value: msg.Name,
-				Inline: true,
-			},
-			{
-				Name: "Twitter Name",
-				Value: msg.TwitterName,
-				Inline: true,
-			},
-			{
-				Name: "Location",
-				Value: msg.Location,
-				Inline: true,
-			},
-			{
-				Name: "Avatar",
-				Value: strconv.Itoa(msg.Avatar),
-				Inline: true,
-			},
-			{
-				Name: "Message",
-				Value: msg.Message,
-				Inline: false,
-			},
-			{
-				Name: "Action",
-				Value: fmt.Sprintf("[Accept](%s/accept/%d?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
-				Inline: false,
-			},
-		}
-	} else {
-		whFields = []Field {
-			{
-				Name: "Name",
-				Value: msg.Name,
-				Inline: true,
-			},
-			{
-				Name: "Twitter Name",
-				Value: msg.TwitterName,
-				Inline: true,
-			},
-			{
-				Name: "Avatar",
-				Value: strconv.Itoa(msg.Avatar),
-				Inline: true,
-			},
-			{
-				Name: "Message",
-				Value: msg.Message,
-				Inline: false,
-			},
-			{
-				Name: "Action",
-				Value: fmt.Sprintf("[Accept](%s/accept/%d?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
-				Inline: false,
-			},
-		}
-	}
 	
-
-	wh := &DiscordWebhook{
-		Username: "Shionstagram",
-		AvatarUrl: os.Getenv("WEBHOOK_AVATAR_URL"),
-		Embeds: []Embed {
-			{
-				Title: "New message posted!",
-				Color: "10813695",
-				Image: Image{
-					URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
-				},
-				Fields: whFields,
-			},
-		},
-	}
+	wh := BuildWebhookRequest(id, msg)
 
 	whPayload, err := json.Marshal(wh)
 	if err != nil {
