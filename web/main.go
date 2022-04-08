@@ -27,8 +27,12 @@ func main() {
 	e.POST("/message", h.PostMessage)
 	e.POST("/image", h.PostImage)
 
+	// Not REST :LunaGalaxyBrain:
 	e.GET("/accept/:id", h.AcceptMessage)
 	e.POST("/accept/:id", h.AcceptMessage)
+
+	e.GET("/remove/:id", h.RemoveMessage)
+	e.DELETE("/remove/:id", h.RemoveMessage)
 
 	e.GET("/messages", h.GetMessages)
 

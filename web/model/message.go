@@ -46,8 +46,8 @@ func (m *model) GetMessage(id string) (*Message, error) {
 	return &msg, nil
 }
 
-func (m *model) AcceptMessage(id string) (err error) {
-	_, err = m.db.Exec(`UPDATE messages SET is_pending = 0 WHERE id = ?`, id)
+func (m *model) UpdateMessagePendingStatus(id string, pending bool) (err error) {
+	_, err = m.db.Exec(`UPDATE messages SET is_pending = ? WHERE id = ?`, pending, id)
 	if err != nil {
 		return
 	}

@@ -89,20 +89,24 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 			Name: "Status",
 			Value: "Pending",
 			Inline: true,
-		})	
+		})
+		fields = append(fields, Field{
+			Name: "Action",
+			Value: fmt.Sprintf("[Accept](%s/accept/%s?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
+			Inline: true,
+		})
 	} else {
 		fields = append(fields, Field{
 			Name: "Status",
 			Value: "Approved",
 			Inline: true,
 		})	
+		fields = append(fields, Field{
+			Name: "Action",
+			Value: fmt.Sprintf("[Remove](%s/remove/%s?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
+			Inline: true,
+		})
 	}
-
-	fields = append(fields, Field{
-		Name: "Action",
-		Value: fmt.Sprintf("[Accept](%s/accept/%s?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
-		Inline: true,
-	})
 
 	return &DiscordWebhook{
 		Username: "Shionstagram",
@@ -233,7 +237,7 @@ func (h *handler) AcceptMessage(c echo.Context) error {
 
 	msg.Pending = false
 
-	if err := h.Model.AcceptMessage(id); err != nil {
+	if err := h.Model.UpdateMessagePendingStatus(id, false); err != nil {
 		return err
 	}
 
@@ -264,6 +268,65 @@ func (h *handler) AcceptMessage(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
+
+func (h *handler) RemoveMessage(c echo.Context) error {
+	id := c.Param("id")
+
+	uuid := c.QueryParam("id")
+	if uuid == "" {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	msg, err := h.Model.GetMessage(id)
+	if err != nil {
+		return err
+	}
+
+	if msg.UUID != uuid {
+		return c.NoContent(http.StatusNotFound)
+	}
+
+	if msg.Pending {
+		return c.JSON(http.StatusBadRequest, &ResMessage{
+			Message: "This message is already removed.",
+		})
+	}
+
+	msg.Pending = true
+
+	if err := h.Model.UpdateMessagePendingStatus(id, true); err != nil {
+		return err
+	}
+
+	wh := BuildWebhookRequest(id, msg)
+
+	whPayload, err := json.Marshal(wh)
+	if err != nil {
+		return err
+	}
+
+	client := &http.Client{}
+	whReq, err := http.NewRequest("PATCH", os.Getenv("WEBHOOK_URL") + "/messages/" + msg.DiscordMessageID, bytes.NewBuffer(whPayload))
+	if err != nil {
+		return err
+	}
+
+	whReq.Header.Add("Content-Type", "application/json")
+
+	whRes, err := client.Do(whReq)
+	if err != nil {
+		return err
+	}
+	defer whRes.Body.Close()
+
+
+	res := &ResMessage{
+		Message: "Message removed. You can close this tab now.",
+	}
+
+	return c.JSON(http.StatusOK, res)
+
 }
 
 func (h *handler) GetMessages(c echo.Context) error {

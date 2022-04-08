@@ -12,7 +12,7 @@ type (
 	Database interface {
 		AddMessage(msg *Message) (string, error)
 		GetMessage(id string) (*Message, error)
-		AcceptMessage(id string) (err error)
+		UpdateMessagePendingStatus(id string, pending bool) (err error)
 		GetAcceptedMessages() ([]*Message, error)
 		SetDiscordMessageID(id string, discordMsgId string) (err error)
 	}
