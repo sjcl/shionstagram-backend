@@ -6,16 +6,17 @@ import (
 
 type (
 	Message struct {
-		ID          uint64    `json:"id,string" db:"id"`
-		UUID        string    `json:"-" db:"uuid"`
-		TwitterName string    `json:"twitter" db:"twitter_name"`
-		Name        string    `json:"name" db:"name"`
-		Location    string    `json:"location" db:"location"`
-		Message     string    `json:"message" db:"message"`
-		Image       string    `json:"image,omitempty" db:"image"`
-		Avatar      int       `json:"pfp" db:"avatar"`
-		Pending     bool      `json:"-" db:"is_pending"`
-		CreatedAt   time.Time `json:"created_at,omitempty" db:"created_at"`
+		ID               uint64    `json:"id,string" db:"id"`
+		UUID             string    `json:"-" db:"uuid"`
+		TwitterName      string    `json:"twitter" db:"twitter_name"`
+		Name             string    `json:"name" db:"name"`
+		Location         string    `json:"location" db:"location"`
+		Message          string    `json:"message" db:"message"`
+		Image            string    `json:"image,omitempty" db:"image"`
+		Avatar           int       `json:"pfp" db:"avatar"`
+		Pending          bool      `json:"-" db:"is_pending"`
+		CreatedAt        time.Time `json:"created_at,omitempty" db:"created_at"`
+		DiscordMessageID uint64    `json:"-" db:"discord_message_id"`
 	}
 )
 
@@ -60,4 +61,15 @@ func (m *model) GetAcceptedMessages() ([]*Message, error) {
 	}
 
 	return messages, nil
+}
+
+
+// TODO: Fix args
+func (m *model) SetDiscordMessageID(id int64, discordMsgId string) (err error) {
+	_, err = m.db.Exec(`UPDATE messages SET discord_message_id = ? WHERE id = ?`, discordMsgId, id)
+	if err != nil {
+		return
+	}
+
+	return
 }

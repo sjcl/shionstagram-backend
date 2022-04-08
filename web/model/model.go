@@ -14,6 +14,7 @@ type (
 		GetMessage(id uint64) (*Message, error)
 		AcceptMessage(id uint64) (err error)
 		GetAcceptedMessages() ([]*Message, error)
+		SetDiscordMessageID(id int64, discordMsgId string) (err error)
 	}
 )
 
