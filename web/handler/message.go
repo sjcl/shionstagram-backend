@@ -46,10 +46,11 @@ type (
 	}
 	
 	Embed struct {
-		Title  string      `json:"title"`
-		Color  string      `json:"color"`
-		Fields []Field     `json:"fields"`
-		Image  Image       `json:"image"`
+		Title     string      `json:"title"`
+		Color     string      `json:"color"`
+		Fields    []Field     `json:"fields"`
+		Image     Image       `json:"image"`
+		Timestamp string      `json:"timestamp"`
 	}
 )
 
@@ -110,8 +111,12 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 		})
 	}
 
-	var embeds []Embed
+	timestamp := msg.CreatedAt
+	if timestamp.IsZero() {
+		timestamp = time.Now()
+	}
 
+	var embeds []Embed
 	if msg.Pending {
 		embeds = append(embeds, Embed{
 			Title: "New message posted!",
@@ -120,6 +125,7 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 				URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
 			},
 			Fields: fields,
+			Timestamp: timestamp.Format(time.RFC3339),
 		})
 	} else {
 		embeds = append(embeds, Embed{
@@ -129,6 +135,7 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 				URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
 			},
 			Fields: fields,
+			Timestamp: timestamp.Format(time.RFC3339),
 		})
 	}
 
@@ -181,20 +188,20 @@ func (h *handler) PostMessage(c echo.Context) error {
 
 	if whRes.StatusCode != http.StatusOK {
 		fmt.Println("Failed to post webhook message: %d %s", id, msg.UUID)
-		return c.JSON(http.StatusCreated, res)
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	var whResContent ResID
 	err = json.NewDecoder(whRes.Body).Decode(&whResContent)
 	if err != nil {
 		fmt.Println("Failed to read webhook message response: %d %s", id, msg.UUID)
-		return c.JSON(http.StatusCreated, res)
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	err = h.Model.SetDiscordMessageID(id, whResContent.ID)
 	if err != nil {
 		fmt.Println("Failed to store webhook message id: %d %s", id, msg.UUID)
-		return c.JSON(http.StatusCreated, res)
+		return c.NoContent(http.StatusInternalServerError)
 	}
 
 	return c.JSON(http.StatusCreated, res)
