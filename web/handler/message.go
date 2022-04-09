@@ -110,19 +110,32 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 		})
 	}
 
+	var embeds []Embed
+
+	if msg.Pending {
+		embeds = append(embeds, Embed{
+			Title: "New message posted!",
+			Color: "15844367",
+			Image: Image{
+				URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
+			},
+			Fields: fields,
+		})
+	} else {
+		embeds = append(embeds, Embed{
+			Title: "New message posted!",
+			Color: "10813695",
+			Image: Image{
+				URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
+			},
+			Fields: fields,
+		})
+	}
+
 	return &DiscordWebhook{
 		Username: "Shionstagram",
 		AvatarUrl: os.Getenv("WEBHOOK_AVATAR_URL"),
-		Embeds: []Embed {
-			{
-				Title: "New message posted!",
-				Color: "10813695",
-				Image: Image{
-					URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
-				},
-				Fields: fields,
-			},
-		},
+		Embeds: embeds,
 	}
 }
 
