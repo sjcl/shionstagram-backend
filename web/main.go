@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"github.com/sjcl/shionstagram-backend/web/model"
 	"github.com/sjcl/shionstagram-backend/web/handler"
+	"github.com/sjcl/shionstagram-backend/web/model"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 
 	m := model.NewModel(db)
 	h := handler.NewHandler(m)
-	
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())

@@ -1,8 +1,8 @@
 package model
 
 import (
-	"time"
 	"strconv"
+	"time"
 )
 
 type (
@@ -33,7 +33,7 @@ func (m *model) AddMessage(msg *Message) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	return strconv.FormatInt(id, 10), nil
 }
 
@@ -42,7 +42,7 @@ func (m *model) GetMessage(id string) (*Message, error) {
 	if err := m.db.Get(&msg, `SELECT * FROM messages WHERE id = ?`, id); err != nil {
 		return nil, err
 	}
-	
+
 	return &msg, nil
 }
 
@@ -63,7 +63,6 @@ func (m *model) GetAcceptedMessages() ([]*Message, error) {
 
 	return messages, nil
 }
-
 
 func (m *model) SetDiscordMessageID(id string, discordMsgId string) (err error) {
 	_, err = m.db.Exec(`UPDATE messages SET discord_message_id = ? WHERE id = ?`, discordMsgId, id)
