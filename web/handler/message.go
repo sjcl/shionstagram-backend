@@ -10,6 +10,8 @@ import (
 	"bytes"
 	"strconv"
 	"fmt"
+	"time"
+	"math/rand"
 
 	"github.com/sjcl/shionstagram-backend/web/model"
 	"github.com/labstack/echo/v4"
@@ -136,6 +138,11 @@ func (h *handler) PostMessage(c echo.Context) error {
 	msg.UUID = uuidObj.String()
 
 	msg.Pending = true
+
+	if msg.Image == "" {
+		rand.Seed(time.Now().UnixNano())
+		msg.Image = fmt.Sprintf("randomImages/%d.jpg", rand.Intn(6) + 1)
+	}
 
 	id, err := h.Model.AddMessage(msg)
 	 if err != nil {
