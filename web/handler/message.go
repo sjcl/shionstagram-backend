@@ -105,7 +105,7 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 		})	
 		fields = append(fields, Field{
 			Name: "Action",
-			Value: fmt.Sprintf("[Remove](%s/remove/%s?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
+			Value: fmt.Sprintf("[Revert to pending](%s/remove/%s?id=%s)", os.Getenv("API_BASE_URL"), id, msg.UUID),
 			Inline: true,
 		})
 	}
