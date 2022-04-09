@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"encoding/json"
 	"bytes"
-	"strconv"
 	"fmt"
 	"time"
 	"math/rand"
@@ -51,6 +50,12 @@ type (
 		Fields    []Field     `json:"fields"`
 		Image     Image       `json:"image"`
 		Timestamp string      `json:"timestamp"`
+		Footer    Footer      `json:"footer"`
+	}
+
+	Footer struct {
+		Text    string `json:"text"`
+		IconUrl string `json:"icon_url"`
 	}
 )
 
@@ -76,11 +81,6 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 		})
 	}
 
-	fields = append(fields, Field{
-		Name: "Avatar",
-		Value: strconv.Itoa(msg.Avatar),
-		Inline: true,
-	})
 	fields = append(fields, Field{
 		Name: "Message",
 		Value: msg.Message,
@@ -126,6 +126,10 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 			},
 			Fields: fields,
 			Timestamp: timestamp.Format(time.RFC3339),
+			Footer: Footer{
+				Text: fmt.Sprintf("Avatar%d", msg.Avatar),
+				IconUrl: fmt.Sprintf("%s/images/pfp/%d.png", os.Getenv("API_BASE_URL"), msg.Avatar),
+			},
 		})
 	} else {
 		embeds = append(embeds, Embed{
@@ -136,6 +140,10 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 			},
 			Fields: fields,
 			Timestamp: timestamp.Format(time.RFC3339),
+			Footer: Footer{
+				Text: fmt.Sprintf("Avatar%d", msg.Avatar),
+				IconUrl: fmt.Sprintf("%s/images/pfp/%d.png", os.Getenv("API_BASE_URL"), msg.Avatar),
+			},
 		})
 	}
 
@@ -353,7 +361,6 @@ func (h *handler) RemoveMessage(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, res)
-
 }
 
 func (h *handler) GetMessages(c echo.Context) error {
