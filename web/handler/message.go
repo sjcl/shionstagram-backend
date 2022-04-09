@@ -133,7 +133,7 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 		})
 	} else {
 		embeds = append(embeds, Embed{
-			Title: "New message posted!",
+			Title: "Approved message",
 			Color: "10813695",
 			Image: Image{
 				URL: os.Getenv("API_BASE_URL") + "/images/" + msg.Image,
@@ -148,7 +148,7 @@ func BuildWebhookRequest(id string, msg *model.Message) *DiscordWebhook {
 	}
 
 	return &DiscordWebhook{
-		Username: "Shionstagram",
+		Username: "Shiongram",
 		AvatarUrl: os.Getenv("WEBHOOK_AVATAR_URL"),
 		Embeds: embeds,
 	}
