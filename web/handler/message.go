@@ -221,6 +221,11 @@ func (h *handler) PostImage(c echo.Context) error {
 		return err
 	}
 
+	ct := file.Header["Content-Type"][0]
+	if ct != "image/jpeg" && ct != "image/png" && ct != "image/gif" {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
 	uuidObj, _ := uuid.NewRandom()
 	uuid := uuidObj.String()
 
