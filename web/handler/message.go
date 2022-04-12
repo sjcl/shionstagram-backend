@@ -215,6 +215,11 @@ func (h *handler) PostMessage(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+func checkContentType(ct string) bool {
+	fmt.Println(ct)
+	return ct != "image/jpeg" && ct != "image/png" && ct != "image/gif"
+}
+
 func (h *handler) PostImage(c echo.Context) error {
 	file, err := c.FormFile("file")
 	if err != nil {
@@ -222,18 +227,26 @@ func (h *handler) PostImage(c echo.Context) error {
 	}
 
 	ct := file.Header["Content-Type"][0]
-	if ct != "image/jpeg" && ct != "image/png" && ct != "image/gif" {
+	if checkContentType(ct) {
 		return c.NoContent(http.StatusBadRequest)
 	}
-
-	uuidObj, _ := uuid.NewRandom()
-	uuid := uuidObj.String()
 
 	src, err := file.Open()
 	if err != nil {
 		return err
 	}
 	defer src.Close()
+
+	buf := make([]byte, 512)
+	src.Read(buf)
+	if checkContentType(http.DetectContentType(buf)) {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	src.Seek(0, 0)
+
+	uuidObj, _ := uuid.NewRandom()
+	uuid := uuidObj.String()
 
 	ext := filepath.Ext(file.Filename)
 	dst, err := os.Create(filepath.Join("/images", uuid+ext))
